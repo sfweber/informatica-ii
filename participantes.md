@@ -14,3 +14,4 @@ Usuarios de GitHub de los participantes de Informática II.
 - julianferra
 - BrognoMicaela
 - andreskocar
+- lgallero
