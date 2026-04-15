@@ -23,3 +23,4 @@ Usuarios de GitHub de los participantes de Informática II.
 - VZ326
 - bcrrica
 - lucascerbino-sudo
+- Lucianodguerra
