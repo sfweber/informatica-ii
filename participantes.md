@@ -22,4 +22,4 @@ Usuarios de GitHub de los participantes de Informática II.
 - DaianaMedoneAcosta
 - VZ326
 - bcrrica
-
+- lucascerbino-sudo
