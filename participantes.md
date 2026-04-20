@@ -25,3 +25,4 @@ Usuarios de GitHub de los participantes de Informática II.
 - lucascerbino-sudo
 - Lucianodguerra
 - Elian-Ortiz
+- FacundoJGil
