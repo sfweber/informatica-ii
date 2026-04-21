@@ -26,3 +26,5 @@ Usuarios de GitHub de los participantes de Informática II.
 - Lucianodguerra
 - Elian-Ortiz
 - Francisco-Casale
+- FacundoJGil
+
