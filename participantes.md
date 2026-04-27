@@ -29,3 +29,4 @@ Usuarios de GitHub de los participantes de Informática II.
 - Francisco-Casale
 - FacundoJGil
 - LautaroCasco
+- MariselHumana
