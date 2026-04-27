@@ -3,6 +3,7 @@
 Usuarios de GitHub de los participantes de Informática II.
 
 ### 2026
+=======
 
 - sfweber
 - NicolasRodriguez12
@@ -27,4 +28,7 @@ Usuarios de GitHub de los participantes de Informática II.
 - Elian-Ortiz
 - Francisco-Casale
 - FacundoJGil
+- LautaroCasco
+- MariselHumana
 - nahuel1986
+
