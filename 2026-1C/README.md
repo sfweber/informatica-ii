@@ -12,3 +12,4 @@ Material clase a clase. Cada carpeta contiene los scripts vistos en clase.
 | [clase-06](clase-06/) | Manejo avanzado de archivos en C (ordenamiento interno vs externo, búsqueda en texto, búsqueda binaria, copia con buffer, benchmark) |
 | [clase-07](clase-07/) | Gestión de memoria dinámica (`malloc`, `calloc`, `realloc`, `free`) |
 | [clase-08](clase-08/) | Recursividad (caso base y traza en el stack, factorial, Fibonacci recursivo vs iterativo, Torres de Hanoi, búsqueda binaria, decimal→binario) |
+| [clase-09](clase-09/) | Punteros a función (declaración e invocación, tablas de función, callbacks, simulación de métodos con `struct`) |
