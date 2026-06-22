@@ -13,3 +13,11 @@ Material clase a clase. Cada carpeta contiene los scripts vistos en clase.
 | [clase-07](clase-07/) | Gestión de memoria dinámica (`malloc`, `calloc`, `realloc`, `free`) |
 | [clase-08](clase-08/) | Recursividad (caso base y traza en el stack, factorial, Fibonacci recursivo vs iterativo, Torres de Hanoi, búsqueda binaria, decimal→binario) |
 | [clase-09](clase-09/) | Punteros a función (declaración e invocación, tablas de función, callbacks, simulación de métodos con `struct`) |
+
+## Material extra
+
+Carpetas que no siguen el esquema clase-a-clase.
+
+| Carpeta | Tema |
+|---------|------|
+| [Ayuda-TP1](Ayuda-TP1/) | **Ayuda para el TP1 "Archivos cruzados"** — cómo parsear `movies.csv` (`fscanf`, scansets `[^,]`, comillas, `fseek`, `strtok`). Material autocontenido. |
