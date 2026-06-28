@@ -13,6 +13,7 @@ Material clase a clase. Cada carpeta contiene los scripts vistos en clase.
 | [clase-07](clase-07/) | Gestión de memoria dinámica (`malloc`, `calloc`, `realloc`, `free`) |
 | [clase-08](clase-08/) | Recursividad (caso base y traza en el stack, factorial, Fibonacci recursivo vs iterativo, Torres de Hanoi, búsqueda binaria, decimal→binario) |
 | [clase-09](clase-09/) | Punteros a función (declaración e invocación, tablas de función, callbacks, simulación de métodos con `struct`) |
+| [clase-10](clase-10/) | Métodos de ordenamiento (básicos O(n²), Shell, quicksort, `qsort` de la biblioteca estándar, comparación de rendimiento) |
 
 ## Material extra
 

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Métodos de ordenamiento — visualizador paso a paso · Informática II</title>
+<style>
+:root{
+  --bg:#eef1f7; --panel:#fff; --ink:#1b2030; --muted:#6b7280; --line:#e3e7ef;
+  --indigo:#4f46e5; --indigo-d:#3730a3; --btc:#f7931a;
+  --green:#16a34a; --green-bg:#e8f7ee;
+  --amber:#d97706; --amber-bg:#fdf3e3;
+  --blue:#2563eb;  --blue-bg:#e8f0ff;
+  --red:#dc2626;   --red-bg:#fdecec;
+  --radius:14px; --shadow:0 6px 24px rgba(27,32,48,.08);
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:17px;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 70px}
+header.banner{background:linear-gradient(120deg,var(--indigo-d),var(--indigo));color:#fff;
+  padding:12px 20px;margin-bottom:14px;box-shadow:var(--shadow)}
+header.banner .inner{max-width:1180px;margin:0 auto}
+header.banner h1{margin:0;font-size:1.4rem;font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:.2px}
+header.banner .sub{margin:.35rem 0 0;opacity:.92;font-size:1rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.card-header{background:#fafbff;border-bottom:1px solid var(--line);padding:10px 16px;
+  font-weight:600;font-size:.95rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card-body{padding:16px}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+@media (min-width:1100px){body{font-size:18px}}
+
+/* selector de algoritmo (barra slim) */
+.algos{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.algos button{border:1px solid var(--line);background:#fff;color:var(--ink);
+  border-radius:999px;padding:7px 15px;font-size:.95rem;cursor:pointer;transition:.12s}
+.algos button:hover{border-color:#c2c9db}
+.algos button.activo{background:var(--indigo);border-color:var(--indigo);color:#fff}
+
+/* escenario — los elementos del vector */
+.stage{display:flex;gap:12px;justify-content:center;align-items:flex-end;
+  height:348px;position:relative;padding:148px 8px 10px;overflow:visible}
+.slot{width:60px;display:flex;flex-direction:column;align-items:center;position:relative;
+  border-radius:12px;transition:background .15s}
+.slot.banda{background:rgba(247,147,26,.12)}
+.carta{width:56px;border:1.5px solid var(--line);border-radius:12px;background:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding:8px 0 10px;box-shadow:0 2px 6px rgba(27,32,48,.10);
+  transition:transform .18s,border-color .15s,background .15s,box-shadow .18s}
+.carta .num{font-size:1.5rem;font-weight:800;line-height:1;font-family:var(--mono);letter-spacing:-.5px}
+.carta .barra{width:18px;background:var(--indigo);border-radius:5px;margin-top:8px;transition:height .25s,background .15s}
+.carta.cmp{border-color:var(--blue);background:var(--blue-bg)}
+.carta.cmp .barra{background:var(--blue)}
+.carta.mov{border-color:var(--amber);background:var(--amber-bg);transform:translateY(-3px);box-shadow:0 8px 16px rgba(217,119,6,.22)}
+.carta.mov .barra{background:var(--amber)}
+.carta.piv{border-color:var(--btc);box-shadow:0 0 0 3px var(--amber-bg),0 2px 6px rgba(27,32,48,.10)}
+.carta.piv .barra{background:var(--btc)}
+.carta.ord{border-color:var(--green);background:var(--green-bg)}
+.carta.ord .barra{background:var(--green)}
+.carta.fuera{opacity:.38;filter:grayscale(.65);box-shadow:none}
+.placeholder{width:56px;height:56px;border:2px dashed var(--indigo);border-radius:12px;opacity:.5;
+  background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(79,70,229,.06) 6px,rgba(79,70,229,.06) 12px)}
+/* aux (elemento guardado): flota por ENCIMA de la fila, sin taparla */
+.en-mano{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:16px;
+  border:2px solid var(--indigo);background:#f1f1ff;box-shadow:0 16px 30px rgba(79,70,229,.32);z-index:6}
+.en-mano::after{content:'▼';position:absolute;left:50%;bottom:-19px;transform:translateX(-50%);
+  color:var(--indigo);font-size:15px;line-height:1}
+.mano-tag{position:absolute;top:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  background:var(--indigo);color:#fff;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.3px}
+/* flechas de índices (i, j, …) apuntando a su elemento */
+/* altura FIJA (3 flechas apiladas en el peor caso) para que el panel no cambie de tamaño entre pasos */
+.ptrs{display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:8px;height:60px;justify-content:flex-start}
+.ptr{font-family:var(--mono);font-size:.78rem;font-weight:800;line-height:1;
+  padding:3px 8px;border-radius:7px;white-space:nowrap;box-shadow:0 1px 3px rgba(27,32,48,.18)}
+.idx{font-size:.68rem;color:var(--muted);margin-top:6px;font-family:var(--mono)}
+
+/* narración + contadores */
+.cap{font-size:1.12rem;min-height:2.6em;margin:4px 2px 12px;font-weight:500}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.pill{border-radius:999px;padding:5px 12px;font-size:.9rem;font-weight:600;border:1px solid var(--line)}
+.pill.b{color:var(--blue);background:var(--blue-bg);border-color:#cfe0ff}
+.pill.a{color:var(--amber);background:var(--amber-bg);border-color:#f3ddb4}
+.pill.n{color:var(--muted);background:#f3f5fa}
+.prog{height:8px;background:#e6e9f2;border-radius:999px;overflow:hidden;margin:0 2px 14px}
+.prog>div{height:100%;background:var(--indigo);width:0;transition:width .12s}
+
+/* controles */
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.inforow{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.inforow .stats{margin:0}
+.inforow .complex{flex:1;min-width:240px;margin:0}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;
+  padding:9px 14px;font-size:.95rem;cursor:pointer;border-bottom:3px solid #d4d9e6;transition:.06s}
+.btn:hover{border-color:#c2c9db}
+.btn:active{transform:translateY(2px);border-bottom-width:1px}
+.btn:disabled{opacity:.4;cursor:default;transform:none}
+.btn.primario{background:var(--indigo);color:#fff;border-color:var(--indigo);border-bottom-color:var(--indigo-d)}
+.sep{flex:1 1 12px}
+.row2{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+label.lbl{font-size:.88rem;color:var(--muted)}
+select,input[type=text]{font:inherit;font-size:.92rem;padding:7px 9px;border:1px solid var(--line);
+  border-radius:8px;background:#fff;color:var(--ink)}
+input[type=text]{width:190px;font-family:var(--mono)}
+input[type=range]{accent-color:var(--indigo)}
+
+/* panel de código */
+.codebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;min-height:32px}
+.badge{font-size:.8rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--amber-bg);
+  color:var(--amber);border:1px solid #f3ddb4}
+.badge.idg{background:var(--blue-bg);color:var(--blue);border-color:#cfe0ff}
+.pila{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-family:var(--mono);font-size:.8rem}
+.pila .frm{background:#f3f5fa;border:1px solid var(--line);border-radius:6px;padding:2px 7px}
+.pila .frm.top{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+pre.code{margin:0;font-family:var(--mono);font-size:.86rem;line-height:1.5;background:#0f1426;
+  color:#cdd3ec;border-radius:10px;padding:12px 0;overflow:auto;min-height:332px}
+pre.code .ln{display:block;padding:0 14px;white-space:pre}
+pre.code .ln.activa{background:rgba(247,147,26,.22);box-shadow:inset 3px 0 0 var(--btc)}
+.leyenda{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);
+  margin-top:10px;padding-top:8px;border-top:1px solid var(--line);justify-content:center}
+.leyenda i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:18px;line-height:1.7}
+footer .v{display:block;font-size:.8rem;opacity:.85}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ===== mejoras educativas (versión test) ===== */
+/* invariante: dos tonos de verde */
+.carta.ord-prov{border-color:#5bb87f;background:#f0fbf4;
+  background-image:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(22,163,74,.13) 5px,rgba(22,163,74,.13) 10px)}
+.carta.ord-prov .barra{background:#7fc99b}
+.invariante{font-size:.92rem;background:#f3f5fa;border:1px solid var(--line);
+  border-left:4px solid var(--indigo);border-radius:8px;padding:8px 12px;margin-bottom:12px}
+.invariante b{color:var(--indigo-d)}
+/* predicción */
+.toggle-pred{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer}
+.predbox{border:1px dashed var(--indigo);background:#f5f5ff;border-radius:10px;padding:12px 14px;margin:0 0 12px}
+.predbox .q{font-weight:700;margin-bottom:8px}
+.predbox .opts{display:flex;gap:8px}
+.predbox.fb-ok{border-style:solid;border-color:var(--green);background:var(--green-bg)}
+.predbox.fb-bad{border-style:solid;border-color:var(--red);background:var(--red-bg)}
+/* panel de complejidad */
+.complex{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 14px}
+.cbadge{display:inline-block;font-weight:700;font-size:.84rem;padding:3px 10px;border-radius:999px;margin-bottom:7px}
+.cbadge.good{color:var(--green);background:var(--green-bg);border:1px solid #bce6cd}
+.cbadge.bad{color:var(--red);background:var(--red-bg);border:1px solid #f3c9c9}
+.cbadge.warn{color:var(--amber);background:var(--amber-bg);border:1px solid #f3ddb4}
+.cbadge.neu{color:var(--indigo);background:var(--blue-bg);border:1px solid #cfe0ff}
+.complex .nums{font-family:var(--mono);font-size:.86rem}
+.complex .nums .lbl2{color:var(--muted);font-family:system-ui,sans-serif}
+/* solapas de vista */
+.tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid var(--line)}
+.tabs .tab{border:1px solid var(--line);border-bottom:none;background:#fff;color:var(--muted);
+  border-radius:10px 10px 0 0;padding:9px 16px;font-size:.98rem;font-weight:600;cursor:pointer;
+  margin-bottom:-2px;transition:.12s}
+.tabs .tab:hover{color:var(--ink)}
+.tabs .tab.activa{color:var(--indigo);background:var(--panel);border-bottom:2px solid var(--panel)}
+/* gráfico operaciones vs n */
+.grafico-body{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.gcontrols{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:12px;font-size:.9rem}
+.gcontrols label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.glbl{color:var(--muted)}
+#gcanvas{width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.nota{font-size:.82rem;color:var(--muted);padding:8px 4px}
+</style>
+</head>
+<body>
+<header class="banner"><div class="inner">
+  <h1>Métodos de ordenamiento — visualizador paso a paso</h1>
+</div></header>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab activa" data-vista="pasos">Paso a paso</button>
+    <button class="tab" data-vista="grafico">Crecimiento: operaciones vs n</button>
+  </div>
+
+  <div id="vistaPasos">
+  <div class="algos" id="algos"></div>
+
+  <div class="grid">
+    <!-- escenario + controles de reproducción -->
+    <div class="card">
+      <div class="card-body">
+        <div class="stage" id="stage"></div>
+        <div class="leyenda" id="leyenda"></div>
+        <div class="controls">
+          <button class="btn" id="bInicio" title="Volver al inicio">⏮</button>
+          <button class="btn" id="bAtras">◀ Atrás</button>
+          <button class="btn primario" id="bPaso">Paso ▶</button>
+          <button class="btn" id="bAuto">▶ Auto</button>
+          <span class="sep"></span>
+          <label class="lbl">Velocidad
+            <input type="range" id="vel" min="1" max="5" value="3" style="vertical-align:middle">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- código (alto fijo = quicksort) -->
+    <div class="card">
+      <div class="card-body">
+        <div class="codebar" id="codebar"></div>
+        <pre class="code" id="code"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- panel de info: ancho completo -->
+  <div class="card">
+    <div class="card-body">
+      <div class="invariante" id="invariante"></div>
+      <div class="predbox" id="predbox" hidden></div>
+      <div class="cap" id="cap">—</div>
+      <div class="prog"><div id="prog"></div></div>
+      <div class="inforow">
+        <div class="stats">
+          <span class="pill b">comparaciones: <span id="cComp">0</span></span>
+          <span class="pill a"><span id="movLbl">movimientos</span>: <span id="cMov">0</span></span>
+          <span class="pill n">paso <span id="cPaso">0</span> / <span id="cTot">0</span></span>
+          <span class="pill n" id="predPill" hidden>aciertos: <span id="cOk">0</span>/<span id="cTotP">0</span></span>
+        </div>
+        <div class="complex" id="complex"></div>
+      </div>
+      <div class="row2">
+        <button class="btn" id="bMezclar">↺ Mezclar</button>
+        <label class="lbl">Ejemplo
+          <select id="preset">
+            <option value="aleatorio">aleatorio</option>
+            <option value="casi">casi ordenado</option>
+            <option value="reves">al revés</option>
+            <option value="ordenado">ya ordenado</option>
+          </select>
+        </label>
+        <label class="lbl">Tus valores
+          <input type="text" id="entrada" placeholder="ej: 5 9 1 8 3 7 6 4">
+        </label>
+        <button class="btn" id="bCargar">Cargar</button>
+        <span class="sep"></span>
+        <label class="toggle-pred"><input type="checkbox" id="predMode"> Modo predicción</label>
+        <label class="toggle-pred" id="corteWrap" hidden><input type="checkbox" id="corteB"> Burbuja: corte temprano</label>
+      </div>
+    </div>
+  </div>
+  </div><!-- /vistaPasos -->
+
+  <div id="vistaGrafico" hidden>
+    <div class="grafico-body">
+      <div class="gcontrols">
+        <span class="glbl">Métodos:</span>
+        <label><input type="checkbox" class="gAlg" value="intercambio"> Intercambio</label>
+        <label><input type="checkbox" class="gAlg" value="seleccion"> Selección</label>
+        <label><input type="checkbox" class="gAlg" value="insercion" checked> Inserción</label>
+        <label><input type="checkbox" class="gAlg" value="burbuja" checked> Burbuja</label>
+        <label><input type="checkbox" class="gAlg" value="burbuja_corte" checked> Burbuja c/corte</label>
+        <label><input type="checkbox" class="gAlg" value="shell" checked> Shell</label>
+        <label><input type="checkbox" class="gAlg" value="quicksort" checked> Quicksort</label>
+        <span class="sep"></span>
+        <label class="glbl">Entrada:
+          <select id="gDist">
+            <option value="aleatorio">aleatorio</option>
+            <option value="casi">casi ordenado</option>
+            <option value="ordenado">ya ordenado</option>
+            <option value="reves">al revés</option>
+          </select>
+        </label>
+        <label><input type="checkbox" id="gMov" checked> incluir movimientos</label>
+        <label><input type="checkbox" id="gRef" checked> curvas de referencia</label>
+        <button class="btn primario" id="gDibujar">Dibujar / actualizar</button>
+      </div>
+      <canvas id="gcanvas" width="1000" height="460"></canvas>
+      <div class="nota" id="gnota"></div>
+    </div>
+  </div>
+
+  <footer>
+    Herramienta educativa por <strong>Federico Weber</strong> · Informática II (UTN) — Métodos de ordenamiento
+    <span class="v">v1.0 · con fines demostrativos; puede contener errores. No reemplaza la teoría.</span>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ---------- utilidades ---------- */
+const rng=(lo,hi)=>{const r=[];for(let k=lo;k<=hi;k++)r.push(k);return r;};
+function rec(arr){
+  return {
+    a:arr.slice(), comp:0, mov:0, frames:[],
+    push(o){
+      this.frames.push({
+        arr:this.a.slice(), comp:this.comp, mov:this.mov,
+        a:o.a??-1, b:o.b??-1, moved:o.moved?o.moved.slice():[],
+        hole:o.hole??-1, held:(o.held===undefined?null:o.held), heldPos:o.heldPos??-1,
+        sorted:o.sorted?o.sorted.slice():[], pivot:o.pivot??-1,
+        band:o.band?o.band.slice():null, paso:(o.paso===undefined?null:o.paso),
+        pila:o.pila?o.pila.map(s=>({...s})):null,
+        punteros:o.punteros?Object.assign({},o.punteros):null,
+        pred:o.pred?Object.assign({},o.pred):null,
+        line:o.line??-1, cap:o.cap||''
+      });
+    },
+    final(cap){ this.push({line:-1, sorted:rng(0,this.a.length-1), cap:cap||'¡Ordenado!'}); return this.frames; }
+  };
+}
+
+/* ---------- algoritmos (portados 1:1 desde clase-10) ----------
+   Cada push incluye `punteros`: { nombre: índice } → flechas bajo los elementos. */
+const ALGOS={
+  intercambio:{ nombre:'Intercambio', mov:'intercambios',
+    code:[
+      'for (i = 0; i < length-1; i++)',
+      '    for (j = i+1; j < length; j++)',
+      '        if (vec[i] > vec[j]) {',
+      '            aux = vec[i];',
+      '            vec[i] = vec[j];',
+      '            vec[j] = aux;',
+      '        }'],
+    run(arr){const R=rec(arr),a=R.a,n=a.length;
+      for(let i=0;i<n-1;i++){
+        R.push({line:0,sorted:rng(0,i-1),punteros:{i},cap:`Posición ${i}: busco el menor del resto y lo traigo acá.`});
+        for(let j=i+1;j<n;j++){
+          R.comp++;
+          const sw=a[i]>a[j];
+          R.push({line:2,a:i,b:j,sorted:rng(0,i-1),punteros:{i,j},pred:{q:`¿Se intercambian ${a[i]} y ${a[j]}?`,correct:sw},cap:`¿${a[i]} > ${a[j]}? ${sw?'Sí: los intercambio.':'No.'}`});
+          if(sw){const t=a[i];a[i]=a[j];a[j]=t;R.mov++;
+            R.push({line:[3,4,5],a:i,b:j,moved:[i,j],sorted:rng(0,i-1),punteros:{i,j},cap:`Intercambio: el ${a[i]} queda en la posición ${i}.`});}
+        }
+      }
+      return R.final();}
+  },
+  seleccion:{ nombre:'Selección', mov:'intercambios',
+    code:[
+      'for (i = 0; i < length-1; i++) {',
+      '    iMenor = i;',
+      '    for (j = i+1; j < length; j++)',
+      '        if (vec[j] < vec[iMenor])',
+      '            iMenor = j;',
+      '    if (i != iMenor) {',
+      '        aux = vec[i];',
+      '        vec[i] = vec[iMenor];',
+      '        vec[iMenor] = aux;',
+      '    }',
+      '}'],
+    run(arr){const R=rec(arr),a=R.a,n=a.length;
+      for(let i=0;i<n-1;i++){
+        let m=i;
+        R.push({line:1,a:m,sorted:rng(0,i-1),punteros:{i,iMenor:m},cap:`Tomo provisoriamente el ${a[i]} (posición ${i}) como el menor.`});
+        for(let j=i+1;j<n;j++){
+          R.comp++;
+          const me=a[j]<a[m];
+          R.push({line:3,a:j,b:m,sorted:rng(0,i-1),punteros:{i,j,iMenor:m},pred:{q:`¿${a[j]} es el nuevo menor?`,correct:me},cap:`¿${a[j]} < ${a[m]}? ${me?'Sí, nuevo mínimo.':'No.'}`});
+          if(me){m=j;R.push({line:4,a:m,sorted:rng(0,i-1),punteros:{i,j,iMenor:m},cap:`El menor ahora es ${a[m]} (posición ${m}).`});}
+        }
+        if(i!==m){const t=a[i];a[i]=a[m];a[m]=t;R.mov++;
+          R.push({line:[6,7,8],a:i,b:m,moved:[i,m],sorted:rng(0,i),punteros:{i,iMenor:m},cap:`Intercambio el menor (${a[i]}) a la posición ${i}.`});}
+        else R.push({line:5,sorted:rng(0,i),punteros:{i,iMenor:m},cap:`El ${a[i]} ya estaba en su lugar.`});
+      }
+      return R.final();}
+  },
+  burbuja:{ nombre:'Burbuja', mov:'intercambios',
+    code:[
+      'for (i = 0; i < length-1; i++)',
+      '    for (j = 0; j < length-i-1; j++)',
+      '        if (vec[j] > vec[j+1]) {',
+      '            aux = vec[j];',
+      '            vec[j] = vec[j+1];',
+      '            vec[j+1] = aux;',
+      '        }'],
+    run(arr){const R=rec(arr),a=R.a,n=a.length;
+      for(let i=0;i<n-1;i++){
+        for(let j=0;j<n-i-1;j++){
+          R.comp++;
+          const sw=a[j]>a[j+1];
+          R.push({line:2,a:j,b:j+1,sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},pred:{q:`¿Se intercambian ${a[j]} y ${a[j+1]}?`,correct:sw},cap:`¿${a[j]} > ${a[j+1]}? ${sw?'Sí: burbujean.':'No.'}`});
+          if(sw){const t=a[j];a[j]=a[j+1];a[j+1]=t;R.mov++;
+            R.push({line:[3,4,5],a:j,b:j+1,moved:[j,j+1],sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},cap:`Intercambio: el ${a[j+1]} sube una posición.`});}
+        }
+      }
+      return R.final();}
+  },
+  insercion:{ nombre:'Inserción', mov:'desplazamientos',
+    code:[
+      'for (i = 1; i < length; i++) {',
+      '    aux = vec[i];',
+      '    j = i;',
+      '    while (j > 0 && aux < vec[j-1]) {',
+      '        vec[j] = vec[j-1];',
+      '        j--;',
+      '    }',
+      '    vec[j] = aux;',
+      '}'],
+    run(arr){const R=rec(arr),a=R.a,n=a.length;
+      for(let i=1;i<n;i++){
+        const aux=a[i];
+        const intro=(i===1)?'El primer elemento ya estaba ordenado. ':'';
+        R.push({line:[1,2],held:aux,hole:i,heldPos:i,sorted:rng(0,i-1),punteros:{i,j:i},cap:`${intro}Guardo el ${aux} en aux (i=${i}).`});
+        let j=i;
+        while(j>0){
+          R.comp++;
+          const corre=aux<a[j-1];
+          R.push({line:3,held:aux,hole:j,heldPos:j,a:j-1,sorted:rng(0,i-1),punteros:{i,j,'j-1':j-1},
+            pred:{q:`¿Hay que correr el ${a[j-1]}? (¿${aux} < ${a[j-1]}?)`,correct:corre},
+            cap:`¿${aux} < ${a[j-1]}? ${corre?`Sí: corro el ${a[j-1]}.`:'No: encontró su lugar.'}`});
+          if(corre){a[j]=a[j-1];R.mov++;
+            R.push({line:[4,5],held:aux,hole:j-1,heldPos:j-1,moved:[j],sorted:rng(0,i-1),punteros:{i,j:j-1},cap:`Corro el ${a[j]} una posición a la derecha.`});
+            j--;}
+          else break;
+        }
+        a[j]=aux;
+        R.push({line:7,moved:[j],sorted:rng(0,i),punteros:{i,j},cap:`Escribo aux (=${aux}) en su lugar.`});
+      }
+      return R.final('¡Vector ordenado!');}
+  },
+  shell:{ nombre:'Shell', mov:'desplazamientos',
+    code:[
+      'for (paso = length/2; paso > 0; paso /= 2)',
+      '    for (i = paso; i < length; i++) {',
+      '        aux = vec[i];',
+      '        j = i;',
+      '        while (j >= paso && vec[j-paso] > aux) {',
+      '            vec[j] = vec[j-paso];',
+      '            j -= paso;',
+      '        }',
+      '        vec[j] = aux;',
+      '    }'],
+    run(arr){const R=rec(arr),a=R.a,n=a.length;
+      for(let paso=Math.floor(n/2);paso>0;paso=Math.floor(paso/2)){
+        R.push({line:0,paso,cap:`Salto = ${paso}: es una inserción comparando elementos separados por ${paso}.`});
+        for(let i=paso;i<n;i++){
+          const aux=a[i];
+          R.push({line:[2,3],paso,held:aux,hole:i,heldPos:i,punteros:{i,j:i},cap:`Guardo el ${aux} en aux.`});
+          let j=i;
+          while(j>=paso){
+            R.comp++;
+            const corre=a[j-paso]>aux;
+            R.push({line:4,paso,held:aux,hole:j,heldPos:j,a:j-paso,punteros:{i,j,'j-paso':j-paso},
+              pred:{q:`¿Hay que correr el ${a[j-paso]}? (¿${a[j-paso]} > ${aux}?)`,correct:corre},
+              cap:`¿${a[j-paso]} > ${aux}? ${corre?`Sí: lo corro ${paso} a la derecha.`:'No.'}`});
+            if(corre){a[j]=a[j-paso];R.mov++;
+              R.push({line:[5,6],paso,held:aux,hole:j-paso,heldPos:j-paso,moved:[j],punteros:{i,j:j-paso},cap:`Corro el ${a[j]} ${paso} posiciones a la derecha.`});
+              j-=paso;}
+            else break;
+          }
+          a[j]=aux;
+          R.push({line:8,paso,moved:[j],punteros:{i,j},cap:`Escribo aux (=${aux}) en su lugar.`});
+        }
+      }
+      return R.final();}
+  },
+  quicksort:{ nombre:'Quicksort', mov:'intercambios', recursivo:true,
+    code:[
+      'void quicksort(int vec[], int inicio, int fin) {',
+      '    central = (inicio + fin) / 2;',
+      '    pivote  = vec[central];',
+      '    i = inicio;  j = fin;',
+      '    do {',
+      '        while (vec[i] < pivote) i++;',
+      '        while (vec[j] > pivote) j--;',
+      '        if (i <= j) {',
+      '            aux = vec[i]; vec[i] = vec[j]; vec[j] = aux;',
+      '            i++;  j--;',
+      '        }',
+      '    } while (i <= j);',
+      '    if (inicio < j) quicksort(vec, inicio, j);',
+      '    if (i < fin)    quicksort(vec, i, fin);',
+      '}'],
+    run(arr){const R=rec(arr),a=R.a,n=a.length;const pila=[];
+      function qs(inicio,fin){
+        pila.push({inicio,fin});
+        const c=(inicio+fin)>>1, piv=a[c];
+        R.push({line:[1,2],band:[inicio,fin],pivot:c,pila,punteros:{piv:c},cap:`quicksort(${inicio},${fin}): pivote = el elemento central → ${piv}.`});
+        let i=inicio,j=fin;
+        do{
+          while(a[i]<piv){R.comp++;R.push({line:5,band:[inicio,fin],pivot:c,a:i,pila,punteros:{i,j,piv:c},pred:{q:`¿${a[i]} < ${piv} (pivote)?`,correct:true},cap:`Avanzo i: ${a[i]} < ${piv}.`});i++;}
+          R.comp++;R.push({line:5,band:[inicio,fin],pivot:c,a:i,pila,punteros:{i,j,piv:c},pred:{q:`¿${a[i]} < ${piv} (pivote)?`,correct:false},cap:`Paro i en ${a[i]} (no es menor que ${piv}).`});
+          while(a[j]>piv){R.comp++;R.push({line:6,band:[inicio,fin],pivot:c,b:j,pila,punteros:{i,j,piv:c},pred:{q:`¿${a[j]} > ${piv} (pivote)?`,correct:true},cap:`Retrocedo j: ${a[j]} > ${piv}.`});j--;}
+          R.comp++;R.push({line:6,band:[inicio,fin],pivot:c,b:j,pila,punteros:{i,j,piv:c},pred:{q:`¿${a[j]} > ${piv} (pivote)?`,correct:false},cap:`Paro j en ${a[j]} (no es mayor que ${piv}).`});
+          if(i<=j){
+            if(i!==j){const x=a[i],y=a[j];a[i]=a[j];a[j]=x;R.mov++;
+              R.push({line:8,band:[inicio,fin],pivot:c,moved:[i,j],a:i,b:j,pila,punteros:{i,j,piv:c},cap:`Intercambio ${x} y ${y}.`});}
+            else R.push({line:7,band:[inicio,fin],pivot:c,a:i,b:j,pila,punteros:{i,j,piv:c},cap:`i y j se cruzaron en ${a[i]}.`});
+            i++;j--;
+          }
+        }while(i<=j);
+        if(inicio<j) qs(inicio,j);
+        if(i<fin)   qs(i,fin);
+        pila.pop();
+      }
+      if(n>1) qs(0,n-1); else R.push({line:-1,cap:'Un solo elemento: ya está ordenado.'});
+      return R.final();}
+  }
+};
+const ORDEN=['intercambio','seleccion','insercion','burbuja','shell','quicksort'];
+
+/* invariante + tipo de región ordenada (definitiva vs provisional) por algoritmo */
+const INV={
+  intercambio:{t:'A[0..i-1] ya tiene los menores en su posición definitiva.',def:true},
+  seleccion:{t:'A[0..i-1] está ordenado y en su posición definitiva (son los i menores).',def:true},
+  insercion:{t:'A[0..i-1] está ordenado entre sí, pero es provisional: se corre cuando entra uno menor.',def:false},
+  burbuja:{t:'La cola A[n-i..n-1] ya tiene los mayores en su lugar definitivo (no la cabeza).',def:true},
+  shell:{t:'El vector queda “ordenado por saltos” (paso); recién con paso=1 queda ordenado.',def:true},
+  quicksort:{t:'Tras particionar: todo a la izquierda ≤ pivote ≤ todo a la derecha (invariante de partición, no una región que crece).',def:true}
+};
+ORDEN.forEach(k=>{ALGOS[k].invariante=INV[k].t; ALGOS[k].sortedDef=INV[k].def;});
+
+/* variante: Burbuja CON corte temprano (toggle). Se elige vía cfg() cuando algo==='burbuja' y corteB. */
+const BURBUJA_CORTE={ nombre:'Burbuja (con corte)', mov:'intercambios', sortedDef:true,
+  invariante: INV.burbuja.t+' Además: si una pasada no intercambia, ya está ordenado y corta.',
+  code:[
+    'hubo = 1;',
+    'i = 0;',
+    'while (i < length-1 && hubo) {',
+    '    hubo = 0;',
+    '    for (j = 0; j < length-i-1; j++)',
+    '        if (vec[j] > vec[j+1]) {',
+    '            aux = vec[j];',
+    '            vec[j] = vec[j+1];',
+    '            vec[j+1] = aux;',
+    '            hubo = 1;',
+    '        }',
+    '    i++;',
+    '}'],
+  run(arr){const R=rec(arr),a=R.a,n=a.length;
+    let i=0,hubo=true;
+    R.push({line:[0,1],cap:'Arranco con hubo=1 (para entrar al while) e i=0.'});
+    while(i<n-1&&hubo){
+      hubo=false;
+      R.push({line:3,sorted:rng(n-i,n-1),cap:`Pasada ${i+1}: pongo hubo=0.`});
+      for(let j=0;j<n-i-1;j++){
+        R.comp++;
+        const sw=a[j]>a[j+1];
+        R.push({line:5,a:j,b:j+1,sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},pred:{q:`¿Se intercambian ${a[j]} y ${a[j+1]}?`,correct:sw},cap:`¿${a[j]} > ${a[j+1]}? ${sw?'Sí: burbujean.':'No.'}`});
+        if(sw){const t=a[j];a[j]=a[j+1];a[j+1]=t;R.mov++;hubo=true;
+          R.push({line:[6,7,8,9],a:j,b:j+1,moved:[j,j+1],sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},cap:`Intercambio: el ${a[j+1]} sube. Marco hubo=1.`});}
+      }
+      i++;
+      if(hubo) R.push({line:2,sorted:rng(n-i,n-1),cap:'Hubo intercambios → la condición del while sigue verdadera: otra pasada.'});
+      else R.push({line:2,sorted:rng(0,n-1),cap:'La pasada no intercambió (hubo=0) → la condición del while es falsa: termina.'});
+    }
+    return R.final();}
+};
+function cfg(){ return (algo==='burbuja'&&corteB)?BURBUJA_CORTE:ALGOS[algo]; }
+
+/* leyenda dinámica: sólo los colores/índices que usa cada método */
+const LEYCOL={cmp:['var(--blue)','comparando'],mov:['var(--amber)','moviendo'],
+  aux:['var(--indigo)','aux'],piv:['var(--btc)','pivote'],ord:['var(--green)','ordenado']};
+const LEY={
+  intercambio:{cols:['cmp','mov','ord'],idx:'i, j'},
+  seleccion:{cols:['cmp','mov','ord'],idx:'i, j, iMenor'},
+  insercion:{cols:['cmp','mov','aux','ord'],idx:'i, j'},
+  burbuja:{cols:['cmp','mov','ord'],idx:'j, j+1'},
+  shell:{cols:['cmp','mov','aux','ord'],idx:'i, j'},
+  quicksort:{cols:['cmp','mov','piv','fuera'],idx:'i, j, pivote'}
+};
+
+/* ---------- estado ---------- */
+let valores=[], algo='insercion', frames=[], cur=0, maxVal=1, playing=false, timer=null;
+let casoActual='aleatorio', esperaPred=false, ultimaPred=null, predStats={ok:0,tot:0}, corteB=false;
+function predMode(){const e=document.getElementById('predMode');return !!(e&&e.checked);}
+
+/* ---------- generación de datos ---------- */
+function nuevoArreglo(modo){
+  casoActual=modo;
+  const n=8;
+  if(modo==='ordenado') valores=randSet(n).sort((x,y)=>x-y);
+  else if(modo==='reves') valores=randSet(n).sort((x,y)=>y-x);
+  else if(modo==='casi'){ valores=randSet(n).sort((x,y)=>x-y);
+    const i=2+Math.floor(Math.random()*(n-4)); [valores[i],valores[i+1]]=[valores[i+1],valores[i]]; }
+  else valores=randSet(n);
+}
+function randSet(n){
+  const s=new Set();
+  while(s.size<n) s.add(2+Math.floor(Math.random()*97));
+  return [...s];
+}
+
+/* ---------- recálculo de la película ---------- */
+function recompute(){
+  stop();
+  frames=cfg().run(valores);
+  maxVal=Math.max(...valores);
+  cur=0; esperaPred=false; ultimaPred=null; predStats={ok:0,tot:0};
+  render();
+}
+
+/* ---------- render ---------- */
+function ptrColor(n){
+  if(n==='i')      return {fg:'#fff',bg:'#4f46e5'};   /* indigo */
+  if(n==='j')      return {fg:'#fff',bg:'#2563eb'};   /* azul   */
+  if(n==='iMenor') return {fg:'#fff',bg:'#16a34a'};   /* verde  */
+  if(n==='piv')    return {fg:'#fff',bg:'#f7931a'};   /* pivote */
+  return {fg:'#1b2030',bg:'#dfe3ef'};                 /* j+1, j-1, j-paso */
+}
+function render(){
+  const f=frames[cur], A=cfg();
+  document.getElementById('corteWrap').hidden=(algo!=='burbuja');   // toggle de corte solo en Burbuja
+  // elementos del vector
+  const stage=document.getElementById('stage'); stage.innerHTML='';
+  const n=f.arr.length;
+  const P=f.punteros||{};
+  const inBand=(k)=>f.band&&k>=f.band[0]&&k<=f.band[1];
+  for(let k=0;k<n;k++){
+    const slot=document.createElement('div');
+    slot.className='slot'+(inBand(k)?' banda':'');
+    if(k===f.hole){
+      const ph=document.createElement('div'); ph.className='placeholder'; slot.appendChild(ph);
+      if(f.held!=null){
+        const m=carta(f.held,true);
+        const tag=document.createElement('span'); tag.className='mano-tag'; tag.textContent='aux';
+        m.appendChild(tag);
+        slot.appendChild(m);
+      }
+    }else{
+      let cls='';
+      if(k===f.a||k===f.b) cls=' cmp';
+      if(f.moved.includes(k)) cls=' mov';
+      if(k===f.pivot) cls=' piv';
+      if(f.sorted.includes(k)) cls=(A.sortedDef||f.sorted.length===n)?' ord':' ord-prov';
+      if(f.band && (k<f.band[0]||k>f.band[1])) cls+=' fuera';   // quicksort: fuera de [inicio,fin]
+      slot.appendChild(carta(f.arr[k],false,cls));
+    }
+    // flechas de índices que apuntan a este elemento
+    const ptrs=document.createElement('div'); ptrs.className='ptrs';
+    for(const name in P){ if(P[name]===k){
+      const c=document.createElement('span'); c.className='ptr';
+      const col=ptrColor(name); c.style.color=col.fg; c.style.background=col.bg;
+      c.textContent='▲ '+name; ptrs.appendChild(c);
+    }}
+    slot.appendChild(ptrs);
+    const idx=document.createElement('div'); idx.className='idx'; idx.textContent=k; slot.appendChild(idx);
+    stage.appendChild(slot);
+  }
+  // invariante del algoritmo
+  document.getElementById('invariante').innerHTML='<b>Invariante:</b> '+A.invariante;
+  // predicción / narración
+  const pb=document.getElementById('predbox'), cap=document.getElementById('cap');
+  if(esperaPred && f.pred){
+    pb.hidden=false; pb.className='predbox';
+    pb.innerHTML=`<div class="q">Predicción — ${f.pred.q}</div><div class="opts"><button class="btn" id="pSi">Sí</button><button class="btn" id="pNo">No</button></div>`;
+    pb.querySelector('#pSi').onclick=()=>responder(true);
+    pb.querySelector('#pNo').onclick=()=>responder(false);
+    cap.textContent='Predecí antes de ver: ¿qué va a pasar?';
+  }else if(ultimaPred && ultimaPred.frame===cur){
+    pb.hidden=false; pb.className='predbox '+(ultimaPred.correcto?'fb-ok':'fb-bad');
+    pb.innerHTML=`<div class="q">${ultimaPred.correcto?'✓ ¡Correcto!':'✗ No era — mirá el resultado.'}</div>`;
+    cap.textContent=f.cap;
+  }else{ pb.hidden=true; cap.textContent=f.cap; }
+  // contadores
+  document.getElementById('cComp').textContent=f.comp;
+  document.getElementById('cMov').textContent=f.mov;
+  document.getElementById('movLbl').textContent=A.mov;
+  document.getElementById('cPaso').textContent=cur;
+  document.getElementById('cTot').textContent=frames.length-1;
+  document.getElementById('prog').style.width=((cur/(frames.length-1||1))*100)+'%';
+  // pill de aciertos (solo en modo predicción)
+  const pp=document.getElementById('predPill');
+  if(predMode()){ pp.hidden=false; document.getElementById('cOk').textContent=predStats.ok;
+    document.getElementById('cTotP').textContent=predStats.tot; }
+  else pp.hidden=true;
+  // panel de complejidad + leyenda dinámica
+  renderComplejidad();
+  renderLeyenda();
+  // código
+  const code=document.getElementById('code'); code.innerHTML='';
+  const act=Array.isArray(f.line)?f.line:[f.line];
+  A.code.forEach((ln,li)=>{
+    const d=document.createElement('span');
+    d.className='ln'+(act.includes(li)?' activa':'');
+    d.textContent=ln||' ';
+    code.appendChild(d);
+  });
+  // barra superior del código (paso / pila)
+  const cb=document.getElementById('codebar'); cb.innerHTML='';
+  if(f.paso!=null){
+    const b=document.createElement('span'); b.className='badge'; b.textContent='paso = '+f.paso; cb.appendChild(b);
+  }
+  if(f.pila){
+    const lab=document.createElement('span'); lab.className='badge idg'; lab.textContent='pila de llamadas'; cb.appendChild(lab);
+    const p=document.createElement('span'); p.className='pila';
+    f.pila.forEach((s,si)=>{
+      const c=document.createElement('span'); c.className='frm'+(si===f.pila.length-1?' top':'');
+      c.textContent=`qs(${s.inicio},${s.fin})`; p.appendChild(c);
+    });
+    cb.appendChild(p);
+  }
+  // botones
+  document.getElementById('bAtras').disabled=(cur===0);
+  document.getElementById('bInicio').disabled=(cur===0);
+  document.getElementById('bPaso').disabled=(cur>=frames.length-1);
+}
+function carta(val,enMano,cls){
+  const c=document.createElement('div'); c.className='carta'+(enMano?' en-mano':'')+(cls||'');
+  const num=document.createElement('div'); num.className='num'; num.textContent=val; c.appendChild(num);
+  const bar=document.createElement('div'); bar.className='barra';
+  bar.style.height=(8+val/maxVal*50)+'px'; c.appendChild(bar);
+  return c;
+}
+
+/* ---------- panel de complejidad (fiel al código de cátedra) ---------- */
+function renderComplejidad(){
+  const n=valores.length, nn=n*(n-1)/2;
+  const real=frames.length?frames[frames.length-1].comp:0;   // comparaciones totales de la corrida
+  let badge='',cls='neu',esp='';
+  if(algo==='burbuja'&&corteB){
+    if(casoActual==='ordenado'){ badge='MEJOR caso: O(n) — corta en 1 pasada'; cls='good'; esp=`${n-1}  (una pasada)`; }
+    else if(casoActual==='casi'){ badge='Casi el mejor caso: ~O(n) (corta enseguida)'; cls='good'; esp=`pocas pasadas`; }
+    else { badge='~O(n²): el corte no ayuda si está muy desordenado'; cls='warn'; esp=`hasta ${nn}  ( n(n-1)/2 )`; }
+  }else if(algo==='intercambio'||algo==='seleccion'||algo==='burbuja'){
+    badge='Comparaciones: O(n²) SIEMPRE — no cambian con la entrada'; cls='warn';
+    esp=`${nn}  ( n(n-1)/2 )`;
+  }else if(algo==='insercion'){
+    if(casoActual==='ordenado'){ badge='MEJOR caso: O(n)'; cls='good'; esp=`${n-1}  ( n-1 )`; }
+    else if(casoActual==='reves'){ badge='PEOR caso: O(n²)'; cls='bad'; esp=`${nn}  ( n(n-1)/2 )`; }
+    else if(casoActual==='casi'){ badge='Casi el mejor caso: ~O(n)'; cls='good'; esp=`cerca de ${n-1}`; }
+    else { badge='Promedio: ~O(n²)'; cls='neu'; esp=`entre ${n-1} y ${nn}`; }
+  }else if(algo==='shell'){
+    badge='Sub-cuadrático (~n^1·5, depende de los saltos)'; cls='neu';
+    esp=`≈ ${Math.round(n*Math.log2(n)*Math.log2(n))}  ( n·(log₂n)² )`;
+  }else if(algo==='quicksort'){
+    const nlog=Math.round(n*Math.log2(n));
+    if(casoActual==='ordenado'||casoActual==='reves'){ badge='Buen caso ~O(n log n): el pivote central NO degrada'; cls='good'; }
+    else { badge='Promedio: O(n log n)'; cls='neu'; }
+    esp=`≈ ${nlog}  ( n·log₂n )`;
+  }
+  const el=document.getElementById('complex');
+  el.innerHTML=`<span class="cbadge ${cls}">${badge}</span>`+
+    `<div class="nums"><span class="lbl2">comparaciones esperadas:</span> ${esp} &nbsp;·&nbsp; <span class="lbl2">reales:</span> ${real}</div>`;
+}
+
+/* ---------- leyenda dinámica por método ---------- */
+function renderLeyenda(){
+  const L=LEY[algo], el=document.getElementById('leyenda'); if(!el) return; el.innerHTML='';
+  L.cols.forEach(k=>{
+    const s=document.createElement('span');
+    if(k==='fuera') s.innerHTML='<i style="background:#c9cfdd;opacity:.7"></i>fuera (atenuado)';
+    else { const c=LEYCOL[k]; s.innerHTML=`<i style="background:${c[0]}"></i>${c[1]}`; }
+    el.appendChild(s);
+  });
+  const a=document.createElement('span'); a.textContent='▲ '+L.idx; el.appendChild(a);
+}
+
+/* ---------- gráfico operaciones vs n ----------
+   Motor de conteo LIVIANO (sin grabador de frames) → espejo exacto de los loops de cada
+   ALGOS[x].run, solo cuenta comparaciones y movimientos. Permite n grande sin explotar memoria. */
+function cuenta(algo,src){
+  const a=src.slice(),n=a.length; let comp=0,mov=0;
+  const sw=(x,y)=>{const t=a[x];a[x]=a[y];a[y]=t;};
+  if(algo==='intercambio'){
+    for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++){comp++;if(a[i]>a[j]){sw(i,j);mov++;}}
+  }else if(algo==='seleccion'){
+    for(let i=0;i<n-1;i++){let m=i;for(let j=i+1;j<n;j++){comp++;if(a[j]<a[m])m=j;}if(i!==m){sw(i,m);mov++;}}
+  }else if(algo==='burbuja'){
+    for(let i=0;i<n-1;i++)for(let j=0;j<n-i-1;j++){comp++;if(a[j]>a[j+1]){sw(j,j+1);mov++;}}
+  }else if(algo==='burbuja_corte'){
+    let i=0,hubo=true;
+    while(i<n-1&&hubo){hubo=false;for(let j=0;j<n-i-1;j++){comp++;if(a[j]>a[j+1]){sw(j,j+1);mov++;hubo=true;}}i++;}
+  }else if(algo==='insercion'){
+    for(let i=1;i<n;i++){const aux=a[i];let j=i;while(j>0){comp++;if(aux<a[j-1]){a[j]=a[j-1];mov++;j--;}else break;}a[j]=aux;}
+  }else if(algo==='shell'){
+    for(let paso=Math.floor(n/2);paso>0;paso=Math.floor(paso/2))for(let i=paso;i<n;i++){const aux=a[i];let j=i;while(j>=paso){comp++;if(a[j-paso]>aux){a[j]=a[j-paso];mov++;j-=paso;}else break;}a[j]=aux;}
+  }else if(algo==='quicksort'){
+    if(n>1)(function qs(lo,hi){const c=(lo+hi)>>1,piv=a[c];let i=lo,j=hi;
+      do{while(a[i]<piv){comp++;i++;}comp++;while(a[j]>piv){comp++;j--;}comp++;
+        if(i<=j){if(i!==j){sw(i,j);mov++;}i++;j--;}}while(i<=j);
+      if(lo<j)qs(lo,j);if(i<hi)qs(i,hi);})(0,n-1);
+  }
+  return {comp,mov};
+}
+const GCOL={intercambio:'#ef4444',seleccion:'#a855f7',insercion:'#2563eb',burbuja:'#f59e0b',burbuja_corte:'#0891b2',shell:'#16a34a',quicksort:'#4f46e5'};
+const GNOM={intercambio:'Intercambio',seleccion:'Selección',insercion:'Inserción',burbuja:'Burbuja',burbuja_corte:'Burbuja c/corte',shell:'Shell',quicksort:'Quicksort'};
+function genArr(n,dist){
+  if(dist==='ordenado') return Array.from({length:n},(_,i)=>i+1);
+  if(dist==='reves')    return Array.from({length:n},(_,i)=>n-i);
+  if(dist==='casi'){ const a=Array.from({length:n},(_,i)=>i+1); const k=Math.max(1,Math.round(n/20));
+    for(let t=0;t<k;t++){const x=Math.floor(Math.random()*n),y=Math.floor(Math.random()*n);const z=a[x];a[x]=a[y];a[y]=z;} return a; }
+  return Array.from({length:n},()=>Math.floor(Math.random()*1000));
+}
+function drawGrafico(){
+  const cv=document.getElementById('gcanvas'); if(!cv) return;
+  const ctx=cv.getContext('2d'); const W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
+  const algos=[...document.querySelectorAll('.gAlg:checked')].map(c=>c.value);
+  const total=document.getElementById('gMov').checked, refs=document.getElementById('gRef').checked;
+  const dist=document.getElementById('gDist').value;
+  const reps=(dist==='aleatorio'||dist==='casi')?5:1;   // ordenado/reves son deterministas
+  const NS=[16,32,64,128,256,512,1024];
+  const data={}; let maxY=1;
+  algos.forEach(al=>{ data[al]=NS.map(n=>{ let s=0; for(let r=0;r<reps;r++){
+        const arr=genArr(n,dist); const c=cuenta(al,arr); s+=total?(c.comp+c.mov):c.comp; }
+      return s/reps; }); maxY=Math.max(maxY,...data[al]); });
+  const ml=78,mr=150,mt=22,mb=46, pw=W-ml-mr, ph=H-mt-mb;
+  const fmt=v=>v>=1000?Math.round(v/1000)+'k':String(Math.round(v));
+  const X=i=>ml+pw*i/(NS.length-1), Y=v=>mt+ph*(1-v/maxY);
+  ctx.font='13px system-ui,sans-serif';
+  // grid + eje Y
+  for(let g=0;g<=4;g++){ const v=maxY*g/4, yy=Y(v);
+    ctx.strokeStyle='#eef1f7';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ml,yy);ctx.lineTo(ml+pw,yy);ctx.stroke();
+    ctx.fillStyle='#6b7280';ctx.textAlign='right';ctx.fillText(fmt(v),ml-8,yy+4); }
+  ctx.strokeStyle='#c9cfdd';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ml,mt);ctx.lineTo(ml,mt+ph);ctx.lineTo(ml+pw,mt+ph);ctx.stroke();
+  ctx.fillStyle='#6b7280';ctx.textAlign='center'; NS.forEach((n,i)=>ctx.fillText(n,X(i),mt+ph+18));
+  ctx.fillText('tamaño del vector (n)',ml+pw/2,H-8);
+  ctx.save();ctx.translate(18,mt+ph/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';
+  ctx.fillText(total?'operaciones (comparaciones + movimientos)':'comparaciones',0,0);ctx.restore();
+  // curvas de referencia
+  if(refs){ const fam=[['n',n=>n],['n·log₂n',n=>n*Math.log2(n)],['n²',n=>n*n]];
+    ctx.setLineDash([5,4]);ctx.strokeStyle='#b6bdcc';ctx.lineWidth=1;ctx.fillStyle='#9aa2b4';ctx.textAlign='left';
+    fam.forEach(([nm,fn])=>{ const mx=fn(NS[NS.length-1]); ctx.beginPath();
+      NS.forEach((n,i)=>{const yy=Y(fn(n)/mx*maxY); i?ctx.lineTo(X(i),yy):ctx.moveTo(X(i),yy);}); ctx.stroke();
+      ctx.fillText(nm, X(NS.length-1)+4, Y(fn(NS[NS.length-1])/mx*maxY)+4); });
+    ctx.setLineDash([]); }
+  // líneas por algoritmo + leyenda
+  ctx.lineWidth=2.6; let ly=mt+8;
+  algos.forEach(al=>{ ctx.strokeStyle=GCOL[al]; ctx.beginPath();
+    data[al].forEach((v,i)=>{const xx=X(i),yy=Y(v); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);}); ctx.stroke();
+    ctx.fillStyle=GCOL[al]; data[al].forEach((v,i)=>{ctx.beginPath();ctx.arc(X(i),Y(v),3,0,7);ctx.fill();});
+    ctx.fillStyle=GCOL[al];ctx.fillRect(ml+pw+16,ly,12,12);
+    ctx.fillStyle='#1b2030';ctx.textAlign='left';ctx.fillText(GNOM[al],ml+pw+32,ly+10); ly+=22; });
+  const distTxt={aleatorio:'aleatorios (caso promedio)',casi:'casi ordenados',ordenado:'ya ordenados (mejor caso)',reves:'al revés (peor caso de los básicos)'}[dist];
+  document.getElementById('gnota').innerHTML=`Entrada: datos <b>${distTxt}</b>`+(reps>1?` — promedio de ${reps} corridas`:'')+`. `+
+    'A n grande, <b>Shell</b> queda muy por debajo de los básicos O(n²). '+
+    'Con <b>ya ordenado</b>, la <b>Burbuja c/corte</b> e <b>Inserción</b> caen a ~n, mientras la Burbuja normal y Selección siguen en ~n² '+
+    '(comparan igual aunque no muevan). En <b>aleatorio</b>, Burbuja y Burbuja c/corte se superponen (el corte casi no actúa).';
+}
+
+/* ---------- navegación ---------- */
+function paso(auto){
+  if(esperaPred) return;                       // primero hay que responder la predicción
+  if(cur>=frames.length-1){stop();return;}
+  const next=frames[cur+1];
+  if(!auto && predMode() && next && next.pred){ cur++; esperaPred=true; render(); return; }
+  cur++; render();
+}
+function responder(si){
+  const f=frames[cur]; if(!f.pred) return;
+  predStats.tot++; const ok=(si===f.pred.correct); if(ok)predStats.ok++;
+  esperaPred=false; ultimaPred={frame:cur,correcto:ok};
+  render();
+}
+function atras(){ esperaPred=false; ultimaPred=null; if(cur>0){cur--;render();} }
+function inicio(){ esperaPred=false; ultimaPred=null; cur=0; render(); }
+function play(){ if(playing){stop();return;} esperaPred=false; if(cur>=frames.length-1) cur=0;
+  playing=true; document.getElementById('bAuto').textContent='⏸ Pausa';
+  document.getElementById('bAuto').classList.add('primario');
+  const v=+document.getElementById('vel').value;
+  const delay=[0,1100,750,450,260,140][v];
+  timer=setInterval(()=>{ if(cur>=frames.length-1){stop();return;} paso(true); },delay);
+}
+function stop(){ playing=false; if(timer){clearInterval(timer);timer=null;}
+  const b=document.getElementById('bAuto'); if(b){b.textContent='▶ Auto'; b.classList.remove('primario');} }
+
+/* ---------- algoritmos UI ---------- */
+function pintarAlgos(){
+  const cont=document.getElementById('algos'); cont.innerHTML='';
+  ORDEN.forEach(k=>{
+    const b=document.createElement('button'); b.textContent=ALGOS[k].nombre;
+    b.className=(k===algo?'activo':'');
+    b.onclick=()=>{ algo=k; pintarAlgos(); recompute(); };
+    cont.appendChild(b);
+  });
+}
+
+/* ---------- entrada propia ---------- */
+function cargarEntrada(){
+  const raw=document.getElementById('entrada').value.trim();
+  if(!raw) return;
+  const nums=raw.split(/[\s,]+/).map(Number).filter(x=>Number.isFinite(x));
+  if(nums.length<2){ alert('Escribí al menos 2 números, separados por espacios o comas.'); return; }
+  if(nums.length>12){ alert('Máximo 12 valores para que se vea bien.'); return; }
+  valores=nums.map(x=>Math.max(1,Math.min(999,Math.round(x))));
+  casoActual='propio';
+  recompute();
+}
+
+/* ---------- arranque ---------- */
+function init(){
+  pintarAlgos();
+  document.getElementById('corteB').addEventListener('change',e=>{ corteB=e.target.checked; recompute(); });
+  document.getElementById('gDibujar').onclick=drawGrafico;
+  ['gMov','gRef','gDist'].forEach(id=>document.getElementById(id).addEventListener('change',drawGrafico));
+  document.querySelectorAll('.gAlg').forEach(c=>c.addEventListener('change',drawGrafico));
+  let graficoDibujado=false;
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.onclick=()=>{
+    document.querySelectorAll('.tabs .tab').forEach(x=>x.classList.toggle('activa',x===t));
+    const g=(t.dataset.vista==='grafico');
+    document.getElementById('vistaPasos').hidden=g;
+    document.getElementById('vistaGrafico').hidden=!g;
+    if(g && !graficoDibujado){ drawGrafico(); graficoDibujado=true; }
+  });
+  nuevoArreglo('aleatorio');
+  recompute();
+  document.getElementById('predMode').addEventListener('change',()=>{ esperaPred=false; ultimaPred=null; predStats={ok:0,tot:0}; render(); });
+  document.getElementById('bPaso').onclick=()=>{stop();paso(false);};
+  document.getElementById('bAtras').onclick=()=>{stop();atras();};
+  document.getElementById('bInicio').onclick=()=>{stop();inicio();};
+  document.getElementById('bAuto').onclick=play;
+  document.getElementById('bMezclar').onclick=()=>{ nuevoArreglo(document.getElementById('preset').value); recompute(); };
+  document.getElementById('preset').onchange=()=>{ nuevoArreglo(document.getElementById('preset').value); recompute(); };
+  document.getElementById('bCargar').onclick=cargarEntrada;
+  document.getElementById('entrada').addEventListener('keydown',e=>{ if(e.key==='Enter') cargarEntrada(); });
+  document.getElementById('vel').oninput=()=>{ if(playing){stop();play();} };
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT') return;
+    if(e.key==='ArrowRight'){stop();paso(false);}
+    else if(e.key==='ArrowLeft'){stop();atras();}
+    else if(e.key===' '){e.preventDefault();play();}
+  });
+}
+init();
+</script>
+</body>
+</html>
