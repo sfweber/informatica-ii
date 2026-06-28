@@ -1,6 +1,6 @@
 # Clase 10
 
-**Tema:** Métodos de ordenamiento. De los básicos O(n²) a los avanzados (Shell, quicksort) y `qsort` de la biblioteca estándar, que ordena cualquier tipo recibiendo el criterio por puntero a función (puente con la unidad 5).
+**Tema:** Métodos de ordenamiento. De los básicos O(n²) a los avanzados (Shell, quicksort) y `qsort` de la biblioteca estándar, que ordena cualquier tipo recibiendo el criterio por puntero a función.
 
 ## Ejemplos
 
