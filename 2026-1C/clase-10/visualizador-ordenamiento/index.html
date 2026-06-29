@@ -298,6 +298,7 @@ function rec(arr){
         pila:o.pila?o.pila.map(s=>({...s})):null,
         punteros:o.punteros?Object.assign({},o.punteros):null,
         pred:o.pred?Object.assign({},o.pred):null,
+        iVal:(o.iVal===undefined?null:o.iVal),
         line:o.line??-1, cap:o.cap||''
       });
     },
@@ -373,9 +374,9 @@ const ALGOS={
         for(let j=0;j<n-i-1;j++){
           R.comp++;
           const sw=a[j]>a[j+1];
-          R.push({line:2,a:j,b:j+1,sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},pred:{q:`¿Se intercambian ${a[j]} y ${a[j+1]}?`,correct:sw},cap:`¿${a[j]} > ${a[j+1]}? ${sw?'Sí: burbujean.':'No.'}`});
+          R.push({line:2,a:j,b:j+1,iVal:i,sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},pred:{q:`¿Se intercambian ${a[j]} y ${a[j+1]}?`,correct:sw},cap:`¿${a[j]} > ${a[j+1]}? ${sw?'Sí: burbujean.':'No.'}`});
           if(sw){const t=a[j];a[j]=a[j+1];a[j+1]=t;R.mov++;
-            R.push({line:[3,4,5],a:j,b:j+1,moved:[j,j+1],sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},cap:`Intercambio: el ${a[j+1]} sube una posición.`});}
+            R.push({line:[3,4,5],a:j,b:j+1,iVal:i,moved:[j,j+1],sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},cap:`Intercambio: el ${a[j+1]} sube una posición.`});}
         }
       }
       return R.final();}
@@ -524,20 +525,20 @@ const BURBUJA_CORTE={ nombre:'Burbuja (con corte)', mov:'intercambios', sortedDe
     '}'],
   run(arr){const R=rec(arr),a=R.a,n=a.length;
     let i=0,hubo=true;
-    R.push({line:[0,1],cap:'Arranco con hubo=1 (para entrar al while) e i=0.'});
+    R.push({line:[0,1],iVal:i,cap:'Arranco con hubo=1 (para entrar al while) e i=0.'});
     while(i<n-1&&hubo){
       hubo=false;
-      R.push({line:3,sorted:rng(n-i,n-1),cap:`Pasada ${i+1}: pongo hubo=0.`});
+      R.push({line:3,iVal:i,sorted:rng(n-i,n-1),cap:`Pasada ${i+1}: pongo hubo=0.`});
       for(let j=0;j<n-i-1;j++){
         R.comp++;
         const sw=a[j]>a[j+1];
-        R.push({line:5,a:j,b:j+1,sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},pred:{q:`¿Se intercambian ${a[j]} y ${a[j+1]}?`,correct:sw},cap:`¿${a[j]} > ${a[j+1]}? ${sw?'Sí: burbujean.':'No.'}`});
+        R.push({line:5,a:j,b:j+1,iVal:i,sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},pred:{q:`¿Se intercambian ${a[j]} y ${a[j+1]}?`,correct:sw},cap:`¿${a[j]} > ${a[j+1]}? ${sw?'Sí: burbujean.':'No.'}`});
         if(sw){const t=a[j];a[j]=a[j+1];a[j+1]=t;R.mov++;hubo=true;
-          R.push({line:[6,7,8,9],a:j,b:j+1,moved:[j,j+1],sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},cap:`Intercambio: el ${a[j+1]} sube. Marco hubo=1.`});}
+          R.push({line:[6,7,8,9],a:j,b:j+1,iVal:i,moved:[j,j+1],sorted:rng(n-i,n-1),punteros:{j,'j+1':j+1},cap:`Intercambio: el ${a[j+1]} sube. Marco hubo=1.`});}
       }
       i++;
-      if(hubo) R.push({line:2,sorted:rng(n-i,n-1),cap:'Hubo intercambios → la condición del while sigue verdadera: otra pasada.'});
-      else R.push({line:2,sorted:rng(0,n-1),cap:'La pasada no intercambió (hubo=0) → la condición del while es falsa: termina.'});
+      if(hubo) R.push({line:2,iVal:i,sorted:rng(n-i,n-1),cap:'Hubo intercambios → la condición del while sigue verdadera: otra pasada.'});
+      else R.push({line:2,iVal:i,sorted:rng(0,n-1),cap:'La pasada no intercambió (hubo=0) → la condición del while es falsa: termina.'});
     }
     return R.final();}
 };
@@ -671,8 +672,11 @@ function render(){
     d.textContent=ln||' ';
     code.appendChild(d);
   });
-  // barra superior del código (paso / pila)
+  // barra superior del código (i / paso / pila)
   const cb=document.getElementById('codebar'); cb.innerHTML='';
+  if(f.iVal!=null){
+    const bi=document.createElement('span'); bi.className='badge idg'; bi.textContent='i = '+f.iVal+'  (pasada '+(f.iVal+1)+')'; cb.appendChild(bi);
+  }
   if(f.paso!=null){
     const b=document.createElement('span'); b.className='badge'; b.textContent='paso = '+f.paso; cb.appendChild(b);
   }
