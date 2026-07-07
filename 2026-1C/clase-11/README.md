@@ -19,8 +19,6 @@
 * **enum1.c** / **enum2.c** — Demos de `enum` (prerequisito): constantes simbólicas y sus valores enteros.
 
 > Los programas leen del teclado y terminan con **EOF**: `Ctrl+D` (Linux) / `Ctrl+Z`+Enter (Windows), o pipeando la entrada (`echo "abcd" | ./prog`).
->
-> El **Ejemplo 5** (anti-rebote de un pulsador — *timed FSM*) se ve en las slides; no tiene código en el repo.
 
 ## Visualizador interactivo
 
