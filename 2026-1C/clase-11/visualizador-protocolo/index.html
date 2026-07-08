@@ -39,6 +39,13 @@
   .cmdbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--panel);
           border-top:1px solid var(--line);box-shadow:0 -2px 12px rgba(0,0,0,.14);
           padding:8px 30px}
+  /* popover para cargar trama propia: flota SOBRE la barra, no le agrega alto */
+  .loadpop{position:absolute;bottom:100%;left:30px;right:30px;margin-bottom:6px;
+           background:var(--panel);border:1px solid var(--line);border-radius:10px;
+           box-shadow:0 -4px 16px rgba(0,0,0,.18);padding:10px 12px;
+           display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .loadpop[hidden]{display:none}
+  .loadpop input[type=text]{flex:1;min-width:240px;width:auto}
   .cmdbar .inner{max-width:none;margin:0}
   .cmdbar .tape{flex-wrap:nowrap;overflow-x:auto;margin-top:7px;padding-bottom:2px}
   .tape{display:flex;flex-wrap:wrap;gap:5px}
@@ -86,17 +93,6 @@
   <p>Info II · Prof. Weber · Simulación <b>fiel a <code>ejemplo4.c</code></b> · Protocolo
      <code>| STX | CANT_DATOS | DATOS | CHK | ETX |</code> · funciona offline (un solo archivo)</p>
 </header>
-
-<div class="wrap">
-  <!-- cargar código de ejemplo: arriba de todo -->
-  <div class="panel">
-    <div class="controls">
-      <button id="bExample" class="alt">Cargar ejemplo del código</button>
-      <span class="hint" style="margin:0">Bytes (decimal, separados por espacio o coma). STX=2, ETX=3.</span>
-    </div>
-    <input id="input" type="text" value="2 8 11 22 33 44 55 66 77 88 112 3" style="margin-top:9px">
-  </div>
-</div>
 
 <!-- DIAGRAMA a ancho completo -->
 <div class="panel fullbleed">
@@ -198,11 +194,18 @@
 
 <!-- BARRA DE CONTROLES FIJA -->
 <div class="cmdbar">
+  <div id="loadPop" class="loadpop" hidden>
+    <span class="hint" style="margin:0">Bytes (decimal, separados por espacio o coma). STX=2, ETX=3.</span>
+    <input id="input" type="text" value="2 8 11 22 33 44 55 66 77 88 112 3">
+    <button id="bApply">Cargar ⏎</button>
+  </div>
   <div class="inner">
     <div class="controls">
       <button id="bStep">Paso ▶</button>
       <button id="bRun" class="alt">Correr todo ⏩</button>
       <button id="bReset" class="alt">Reset ↺</button>
+      <button id="bExample" class="alt">Cargar ejemplo del código</button>
+      <button id="bLoad" class="alt">Cargar trama… ✎</button>
       <span id="status" class="hint" style="margin:0"></span>
       <span class="kbd" style="margin-left:auto"><b>Espacio</b> paso · <b>Enter</b> correr · <b>R</b> reset</span>
     </div>
@@ -286,7 +289,18 @@ function render(){
 $('bStep').onclick=step;
 $('bRun').onclick=run;
 $('bReset').onclick=reset;
-$('bExample').onclick=()=>{ $('input').value='2 8 11 22 33 44 55 66 77 88 112 3'; reset(); };
+$('bExample').onclick=()=>{ $('input').value='2 8 11 22 33 44 55 66 77 88 112 3'; reset(); hidePop(); };
+function hidePop(){ $('loadPop').hidden=true; }
+$('bLoad').onclick=()=>{
+  const pop=$('loadPop');
+  pop.hidden=!pop.hidden;
+  if(!pop.hidden){ $('input').focus(); $('input').select(); }
+};
+$('bApply').onclick=()=>{ reset(); hidePop(); };
+$('input').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ e.preventDefault(); reset(); hidePop(); }
+  else if(e.key==='Escape'){ hidePop(); }
+});
 $('input').addEventListener('change', reset);
 // atajos de teclado: Espacio/→ = Paso, Enter = Correr, R = Reset
 document.addEventListener('keydown', e=>{
