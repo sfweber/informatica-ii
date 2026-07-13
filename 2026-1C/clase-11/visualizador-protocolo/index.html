@@ -77,6 +77,7 @@
   .stnode text{font-family:ui-monospace,Consolas,monospace;font-weight:700;font-size:18px;fill:var(--ink)}
   .stnode.active rect{fill:#d7263d;stroke:#9c0e22}
   .stnode.active text{fill:#fff}
+  .initnode circle{fill:var(--ink);stroke:none}
   .edge{fill:none;stroke:#7b8a99;stroke-width:2.5}
   .elabel{font-size:13px;fill:#34506b;font-family:ui-monospace,Consolas,monospace}
   /* formato evento [guarda] / acción — mismos colores que las slides de clase */
@@ -99,12 +100,18 @@
 <!-- DIAGRAMA a ancho completo -->
 <div class="panel fullbleed">
   <h2 style="margin:0 0 6px">Diagrama de estados (STD) — el estado activo procesa el próximo byte</h2>
-  <svg viewBox="0 0 1760 322" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="-70 0 1830 322" preserveAspectRatio="xMidYMid meet">
     <defs>
       <marker id="ah" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto" markerUnits="strokeWidth">
         <path d="M0,0 L8,3 L0,6 Z" fill="#7b8a99"/>
       </marker>
     </defs>
+    <!-- TRANSICIÓN INICIAL (UML): la máquina arranca en EST_STX -->
+    <!-- en el código: ejemplo4.c:63 → Estados siguienteEstado = EST_STX; -->
+    <g class="initnode">
+      <circle cx="-40" cy="96" r="10"/>
+      <path class="edge" d="M-30,96 L20,96" marker-end="url(#ah)"/>
+    </g>
     <!-- FORWARD: rectos, en el centro de las cajas (y=96). etiqueta encima -->
     <path class="edge" d="M220,96 L400,96" marker-end="url(#ah)"/>
     <text class="elabel" x="310" y="75" text-anchor="middle"><tspan class="ev">byte_recv</tspan> <tspan class="gd">[byte==STX]</tspan></text>
