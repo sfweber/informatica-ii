@@ -13,7 +13,8 @@ Material de cursada de **Informatica II** — Ingenieria Electronica, UTN Facult
 │   ├── clase-01/
 │   ├── clase-02/
 │   └── ...
-├── 2026-2C/          ← Segundo cuatrimestre 2026
+├── 2026-2C/          ← Segundo cuatrimestre 2026 (en curso)
+│   ├── clase-12/
 │   └── ...
 └── recursos/         ← Material complementario y links utiles
 ```
