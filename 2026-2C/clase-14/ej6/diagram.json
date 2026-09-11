@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "author": "Sergio Federico WEBER",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-arduino-mega",
+      "id": "mega",
+      "top": 0.6,
+      "left": -32.4,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 227,
+      "left": 153.6,
+      "attrs": {
+        "color": "green",
+        "xray": "1",
+        "bounce": "1"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -109.2,
+      "left": 42.2,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-gnd",
+      "id": "gnd1",
+      "top": -67.2,
+      "left": -58.2,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -53.65,
+      "left": 67.2,
+      "attrs": {
+        "value": "1000"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 291.95,
+      "left": 249.6,
+      "rotate": 90,
+      "attrs": {
+        "value": "1000"
+      }
+    },
+    {
+      "type": "wokwi-gnd",
+      "id": "gnd2",
+      "top": 336,
+      "left": 345,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led2",
+      "top": -109.2,
+      "left": 138.2,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r3",
+      "top": -53.65,
+      "left": 163.2,
+      "attrs": {
+        "value": "1000"
+      }
+    },
+    {
+      "type": "wokwi-gnd",
+      "id": "gnd3",
+      "top": -67.2,
+      "left": 220,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [
+      "mega:5V",
+      "btn1:1.l",
+      "red",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:8",
+      "btn1:2.r",
+      "green",
+      [
+        "v-38.4",
+        "h229.8",
+        "v268.8"
+      ]
+    ],
+    [
+      "r2:1",
+      "btn1:2.r",
+      "green",
+      [
+        "h0"
+      ]
+    ],
+    [
+      "r2:2",
+      "gnd2:GND",
+      "green",
+      [
+        "h0"
+      ]
+    ],
+    [
+      "led1:C",
+      "gnd1:GND",
+      "green",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "r1:2",
+      "mega:9",
+      "green",
+      [
+        "v0",
+        "h8.4"
+      ]
+    ],
+    [
+      "r1:1",
+      "led1:A",
+      "green",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "led2:C",
+      "gnd3:GND",
+      "green",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "r3:2",
+      "mega:10",
+      "green",
+      [
+        "v0",
+        "h8.4"
+      ]
+    ],
+    [
+      "r3:1",
+      "led2:A",
+      "green",
+      [
+        "v0"
+      ]
+    ]
+  ],
+  "dependencies": {}
+}

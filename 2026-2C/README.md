@@ -6,3 +6,5 @@ La numeración continúa la del primer cuatrimestre (que terminó en la clase 11
 | Clase | Tema |
 |-------|------|
 | [clase-12](clase-12/) | Representación de números reales: punto fijo (BSS/SM, rango, resolución, truncar vs redondear) y punto flotante IEEE 754 (mantisa, exponente, denormales, precisión de `float`/`double`) |
+| clase-13 | Introducción a microcontroladores (Arduino Mega 2560, capas ISA → core → placa, toolchain `arduino-cli`, hola mundo) — sin código en el repo; el material está en el campus |
+| [clase-14](clase-14/) | Entradas digitales y máquinas de estado en el micro: nivel vs flanco, rebote, antirrebote como MEF, `delay()` vs `millis()`, dos temporizadores conviviendo, driver `leerBoton()` vs aplicación (Wokwi, Mega 2560) |

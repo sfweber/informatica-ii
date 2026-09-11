@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "author": "Sergio Federico WEBER",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-arduino-mega",
+      "id": "mega",
+      "top": 0.6,
+      "left": -32.4,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 227,
+      "left": 153.6,
+      "attrs": {
+        "color": "green",
+        "xray": "1",
+        "bounce": "1"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -109.2,
+      "left": 42.2,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-gnd",
+      "id": "gnd1",
+      "top": -67.2,
+      "left": -58.2,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -53.65,
+      "left": 67.2,
+      "attrs": {
+        "value": "1000"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "mega:GND.3",
+      "btn1:1.l",
+      "black",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:21",
+      "btn1:2.r",
+      "green",
+      [
+        "v-38.4",
+        "h229.8",
+        "v268.8"
+      ]
+    ],
+    [
+      "led1:C",
+      "gnd1:GND",
+      "green",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "r1:2",
+      "mega:9",
+      "green",
+      [
+        "v0",
+        "h8.4"
+      ]
+    ],
+    [
+      "r1:1",
+      "led1:A",
+      "green",
+      [
+        "v0"
+      ]
+    ]
+  ],
+  "dependencies": {}
+}
