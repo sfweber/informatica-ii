@@ -110,4 +110,4 @@ Probar en Wokwi: `v1` (predecir antes de correrla), `v2` con el rebote activo (m
 
 ## Lo que viene
 
-Seguimos **preguntando** todo el tiempo si el botón cambió: eso es *polling*. La clase que viene el micro nos avisa: **interrupciones** (`attachInterrupt`, `volatile`, sección crítica). Dos cosas para ir pensando: el rebote **no desaparece** con una interrupción, empeora (dispara con cada rebote, y adentro de una ISR no se puede usar `delay()`); y para un pulsador el polling alcanza y sobra. *La interrupción dice **cuándo** llegó; la máquina de estados recuerda **dónde** estás. No compiten.*
+Seguimos **preguntando** todo el tiempo si el botón cambió: eso es *polling*. La clase que viene el micro nos avisa: **interrupciones**.
