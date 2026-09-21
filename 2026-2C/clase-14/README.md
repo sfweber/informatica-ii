@@ -16,7 +16,7 @@
 
 ## Cómo correrlos
 
-Cada carpeta es un proyecto de Wokwi completo: `sketch.ino` (el código), `diagram.json` (el circuito) y `wokwi-project.txt` (el link al proyecto original).
+Cada carpeta es un proyecto de Wokwi completo: `sketch.ino` (el código) y `diagram.json` (el circuito).
 
 * **En Wokwi:** https://wokwi.com → *New Project* → *Arduino Mega* → pegar el contenido de `sketch.ino` en la pestaña del código y el de `diagram.json` en la pestaña `diagram.json`. (Los pulsadores tienen `"bounce": "1"` para que el rebote **se vea**, como en la placa real.)
 * **En la placa real** (Mega 2560, desde la terminal): arduino-cli exige que el archivo se llame como la carpeta, así que primero `mv sketch.ino <nombre-de-la-carpeta>.ino` y después, parados adentro de la carpeta:
@@ -47,7 +47,7 @@ Cada carpeta es un proyecto de Wokwi completo: `sketch.ino` (el código), `diagr
 | [`v3`](ej3_v3/) | antirrebote: `delay(40)` **y volver a leer** | `delay()` **bloquea** el `loop()` |
 | [`v4`](ej3_v4_FSM/) | el antirrebote como **MEF** de 4 estados | el `delay(40)` sigue adentro |
 | [`v5`](ej3_v5_FSM_millis/) | la misma MEF con `millis()` — **no bloqueante** | — **← resolución del ejercicio 3** |
-| [`v6`](ej3_v6_pin21_pullup/) | pin 21 + `INPUT_PULLUP`, se invierten los `HIGH`/`LOW` | — (puente con la clase de interrupciones) |
+| [`v6`](ej3_v6_pin21_pullup/) | **el botón se muda del pin 8 al 21**, `INPUT_PULLUP`, se invierten los `HIGH`/`LOW` | — (puente con la clase de interrupciones) |
 
 **`v0` funciona y resuelve el enunciado.** Todo lo que sigue no es porque falle: es porque el ejercicio 4 va a pedir «al presionar», y para eso hace falta saber **cuándo cambió** el botón, no cómo está. Ver un cambio exige **recordar el valor anterior** (`oldValue`, global: lo que se declara dentro de `loop()` no sobrevive entre vueltas).
 
@@ -73,6 +73,8 @@ Cada carpeta es un proyecto de Wokwi completo: `sketch.ino` (el código), `diagr
 * `antireboteMS` pasa a `uint32_t` para comparar del mismo tipo (en AVR `int` son **16 bits**). `timeAntes` **no puede ser `const`**: es estado, lo escribe una acción.
 
 **`v6` (opcional).** El chip trae **pull-up interno** (20-50 kΩ) y **no** trae pull-down. `INPUT_PULLUP` no es «otra forma de conectar el botón»: es una resistencia que en vez de comprarla, se escribe. El pin 21 es uno de los de interrupción externa del Mega: es el circuito con el que arranca la clase que viene.
+
+> ⚠️ **El cambio de circuito va primero, y es el que se olvida.** En Wokwi: mover el cable del botón **del pin 8 al 21**, borrar la resistencia de pull-down y llevar la otra pata a GND. Recién después el código. Si el botón se queda en el 8 no hay error ni aviso: el LED simplemente no responde.
 
 Probar en Wokwi: `v1` (predecir antes de correrla), `v2` con el rebote activo (mirar cuántas veces cambia el LED al presionar una vez), `v3` (lo mismo, ahora limpio), `v5` (igual que `v3`, pero el `loop()` nunca se detiene).
 

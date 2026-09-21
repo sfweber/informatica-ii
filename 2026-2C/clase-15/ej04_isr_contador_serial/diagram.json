@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "author": "Sergio Federico WEBER",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-mega", "id": "mega", "top": -76.2, "left": 15.6, "attrs": {} },
+    { "type": "wokwi-resistor", "id": "r1", "top": -130.45, "left": 96, "attrs": { "value": "1000" } },
+    { "type": "wokwi-led", "id": "led1", "top": -166.8, "left": 23, "attrs": { "color": "red" } }
+  ],
+  "connections": [
+    [ "mega:9", "r1:2", "green", [ "v0" ] ],
+    [ "r1:1", "led1:A", "green", [ "v0" ] ],
+    [ "led1:C", "mega:GND.1", "green", [ "v28.8", "h0.4" ] ],
+    [ "mega:4", "mega:21", "green", [ "v-48", "h120.6" ] ]
+  ],
+  "dependencies": {}
+}
