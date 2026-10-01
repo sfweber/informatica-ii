@@ -10,12 +10,12 @@
 
 ## new / delete
 
-* **[ej01](ej01_stack_overflow/)** — ❌ **Se cae a propósito.** `int vec[3000000]` son 12 MB en la pila, que en Linux es de 8 MB: `Segmentation fault`. Con `1000000` (4 MB) no se cae. El vector se usa (`vec[0] = 1`) porque si no el compilador lo elimina.
+* **[ej01](ej01_stack_overflow/)** — **Crashea a propósito.** `int vec[3000000]` son 12 MB en la pila, que en Linux es de 8 MB: `Segmentation fault`. Con `1000000` (4 MB) no crashea. El vector se usa (`vec[0] = 1`) porque si no el compilador lo elimina.
 * **[ej02](ej02_new_int/)** — `new int`: reserva un `int` en el heap, sin inicializar. `new` recibe un **tipo** (no bytes: no hace falta `sizeof`) y devuelve un puntero **a ese tipo** (no hace falta castear, como con `malloc`). Si falla no devuelve `NULL`: lanza `std::bad_alloc`.
 * **[ej03](ej03_new_inicializacion_directa/)** — `new int (5)`, inicialización directa.
 * **[ej04](ej04_new_inicializacion_uniforme/)** — `new int {5}`, inicialización uniforme. Los tres hacen `delete`.
 * **[ej05](ej05_delete_puntero_colgante/)** — imprime `*ptr` **después** del `delete`. `delete` no borra nada: devuelve el bloque al programa, y `ptr` sigue apuntando ahí (puntero colgante). Leerlo es **comportamiento indefinido**: puede salir el `5`, basura o caerse.
-* **[ej06](ej06_delete_mas_nullptr/)** — ❌ **Se cae a propósito.** Lo mismo con `ptr = nullptr` después del `delete`: el error pasa de silencioso a `Segmentation fault`.
+* **[ej06](ej06_delete_mas_nullptr/)** — **Crashea a propósito.** Lo mismo con `ptr = nullptr` después del `delete`: el error pasa de silencioso a `Segmentation fault`.
 * **[ej07](ej07_puntero_nulo/)** — `int *ptr {nullptr}` y `if (!ptr)` antes del `new`. `nullptr` reemplaza al `NULL` de C.
 * **[ej08](ej08_leak_en_funcion/)** — el `new` está en `asignar()` y `ptr` muere al cerrar la llave: nadie puede hacer `delete`. **Memory leak.**
 * **[ej09](ej09_leak_puntero_reasignado/)** — `ptr = &i;` después del `new`: el bloque queda huérfano. Y si ahora alguien hace `delete ptr`, libera memoria de la **pila**.

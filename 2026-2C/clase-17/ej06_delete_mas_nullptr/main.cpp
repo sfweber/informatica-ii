@@ -9,6 +9,6 @@ int main ()
     ptr = nullptr;               // ahora el error deja de ser silencioso
 
     std::cout << "\nVamos otra vez:\n"
-              << "ptr: " << ptr << "\t*ptr: " << *ptr << '\n';   // se cae (segfault), a proposito
+              << "ptr: " << ptr << "\t*ptr: " << *ptr << '\n';   // crashea (segfault), a proposito
     return 0;
 }
