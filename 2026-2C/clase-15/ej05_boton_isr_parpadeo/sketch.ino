@@ -24,7 +24,7 @@
  *
  * hayFlanco es UN byte: escribirlo y leerlo es atomico en el AVR, y por eso aca
  * no hace falta noInterrupts() (comparar con el contador de 16 bits del ej. 04).
- * Orden dentro del driver: PRIMERO limpiar la bandera, DESPUES leer el pin. Asi,
+ * Orden dentro del driver: PRIMERO limpiar el flag, DESPUES leer el pin. Asi,
  * un flanco que caiga justo en el medio queda anotado para el proximo estado en
  * vez de perderse.
  */
