@@ -4,8 +4,8 @@
 class miVector 
 {
 private:
-    int* n_vector {nullptr} ;
-    int n_tam ;
+    int* m_vector {nullptr} ;
+    int m_tam ;
 public:
     miVector (int);
     ~miVector ();

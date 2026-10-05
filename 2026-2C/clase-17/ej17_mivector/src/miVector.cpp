@@ -13,27 +13,27 @@ miVector::miVector (int tam)
         std::exit (0);
     }
 
-    n_tam = tam ;
-    n_vector = new int [tam] {};     // todos en cero
+    m_tam = tam ;
+    m_vector = new int [tam] {};     // todos en cero
 }
 
 miVector::~miVector ()
 {
-    delete[] n_vector ;
+    delete[] m_vector ;
 }
 
 void miVector::setValor (int valor , int pos)
 {
-    if (pos >= 0 && pos < n_tam)     // posiciones validas: 0 .. n_tam-1
-        n_vector[pos] = valor ;
+    if (pos >= 0 && pos < m_tam)     // posiciones validas: 0 .. m_tam-1
+        m_vector[pos] = valor ;
     else
         std::cout << "los parametros ingresados no son validos\n" ;
 }
 
 int miVector::getValor (int pos)
 {
-    if (pos >= 0 && pos < n_tam)
-        return n_vector[pos];
+    if (pos >= 0 && pos < m_tam)
+        return m_vector[pos];
     else
     {
         std::cout << "los parametros ingresados no son validos\n" ;
@@ -43,5 +43,5 @@ int miVector::getValor (int pos)
 
 int miVector::getTam (void)
 {
-    return n_tam;
+    return m_tam;
 }

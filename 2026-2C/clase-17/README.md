@@ -41,4 +41,4 @@ Mismo nombre que la clase con `~` adelante, sin parámetros ni tipo de retorno, 
 * Perder el único puntero a un bloque (`ej08`, `ej09`, `ej10`): no hay forma de liberarlo. Ni g++ ni el programa avisan; valgrind o `-fsanitize=address` sí.
 * `new int[x] {5}` esperando un vector lleno de 5: solo el primero.
 * `return` sin valor en una función que devuelve algo (`control reaches end of non-void function`): el que llamó recibe basura. Todos los caminos tienen que terminar en `return`.
-* `pos <= n_tam` como control de rango: deja pasar `pos == n_tam`, que está fuera del vector.
+* `pos <= m_tam` como control de rango: deja pasar `pos == m_tam`, que está fuera del vector.
