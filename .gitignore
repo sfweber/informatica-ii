@@ -9,6 +9,7 @@
 *
 !*/
 !*.*
+!Makefile
 
 # ── A partir de acá, lo que tiene extensión pero NUNCA se commitea ──
 

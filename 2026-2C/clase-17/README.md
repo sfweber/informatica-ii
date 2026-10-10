@@ -1,11 +1,11 @@
 # Clase 17
 
-**Tema:** **Memoria dinámica en C++ y destructores.** `new`/`delete` y `new[]`/`delete[]` en lugar de `malloc`/`free`, los mismos errores que en C (puntero colgante, fuga, doble liberación) ahora con `new`, y la parte central: el **destructor**, la función miembro que corre sola cuando el objeto muere. Cierra con la clase `miVector`, que pide su memoria en el constructor y la libera en el destructor.
+**Tema:** **Memoria dinámica en C++ y destructores.** `new`/`delete` y `new[]`/`delete[]` en lugar de `malloc`/`free`, los mismos errores que en C (puntero colgante, fuga, doble liberación) ahora con `new`, y la parte central: el **destructor**, la función miembro que corre sola cuando el objeto muere. Cierra con `miVector` y `miString`, que piden su memoria en el constructor y la liberan en el destructor.
 
 ## Cómo compilarlos
 
 * **Un solo archivo** (`ej01` a `ej15`): `g++ -Wall -Wextra -std=c++17 main.cpp -o programa && ./programa`.
-* **`ej17`** (`src/` + `include/` + `Makefile`): `make` compila, `make run` compila y ejecuta, `make clean` borra. Mismo Makefile que la clase 16. Si tocan el `.h`: `make clean && make`.
+* **`ej17` y `ej18`** (`src/` + `include/` + `Makefile`): `make` compila, `make run` compila y ejecuta, `make clean` borra. Mismo Makefile que la clase 16. Si tocan el `.h`: `make clean && make`.
 * Para ver fugas y accesos inválidos: `valgrind ./programa` (lo usaron en recursividad) o compilar con `g++ -g -fsanitize=address main.cpp -o programa`.
 
 ## new / delete
@@ -33,6 +33,8 @@ Mismo nombre que la clase con `~` adelante, sin parámetros ni tipo de retorno, 
 * **[ej16](ej16_malloc_vs_new/)** — la misma clase pedida con `malloc`/`free` y con `new`/`delete`. Con `malloc` no se imprime nada: hay bytes, pero el objeto **nunca nació** (no corrió el constructor) y `free` tampoco llama al destructor. Es la razón para usar `new`/`delete` en C++.
 * **[ej17](ej17_mivector/)** — `class miVector`: un vector de enteros cuyo tamaño se elige al crear el objeto (`miVector obj1 (tam)`). El constructor hace el `new[]` y guarda el tamaño; el destructor hace el `delete[]`; `setValor`/`getValor` rechazan posiciones fuera de `0 .. tam-1`.
   Si el tamaño no es válido, el constructor hace `exit(0)`: un constructor **no devuelve nada**, así que no tiene forma de avisar que falló. El `main` crea `obj2 (-1)` a propósito para verlo: el programa termina ahí, **sin ejecutar el destructor de `obj1`**. Comentar esa línea para ver el resto.
+* **[ej18](ej18_mistring/)** — `class miString`: un texto cuyo largo se decide al crear el objeto. El constructor reserva con `new[]` el largo justo más el `'\0'` y copia; el destructor hace el `delete[]`. `cargar` libera el bloque viejo y reserva uno nuevo. `agregar` reserva un bloque más grande, copia lo viejo y lo nuevo, y libera el viejo.
+  Al final, el objeto entero se pide al heap: `new miString (...)` llama al constructor, `pStr->imprimir ()` llama un método a través del puntero y `delete pStr` llama al destructor.
 
 ## Errores frecuentes
 
