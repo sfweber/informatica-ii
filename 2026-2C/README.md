@@ -15,6 +15,7 @@ La numeración continúa la del primer cuatrimestre (que terminó en la clase 11
 | [clase-17](clase-17/) | Memoria dinámica en C++ y destructores: `new`/`delete` y `new[]`/`delete[]`, puntero colgante y fugas con `new`, el destructor; `miVector` y `miString` (memoria pedida en el constructor y liberada en el destructor, objetos creados con `new`) |
 | [clase-18](clase-18/) | Listas simplemente enlazadas, parte 1: `Nodo` y `Lista`, `crearLista` y recorrer, destructor, insertar al principio y al final |
 | [clase-19](clase-19/) | Listas simplemente enlazadas, parte 2: insertar antes y después de un nodo, buscar, borrar un nodo y todas las ocurrencias (errores por `cerr`); lista ordenada (`insertarOrdenado`); lista doblemente enlazada (`NodoDoble`, insertar, buscar por posición, eliminar) |
+| [clase-20](clase-20/) | Pilas y colas: `Pila` sobre un vector en el heap (`push`/`pop`/`getTop`, `m_top` como índice, `isEmpty`/`isFull`), la versión con controles de llena y vacía (`cerr`) y `borrarPila`; `CircQueue`, cola circular sobre un vector (`enqueue`/`dequeue` con `%`, `m_count` para distinguir llena de vacía) |
 | [clase-21](clase-21/) | Referencias en C++ (clase grabada): categorías de valor (lvalue/rvalue), referencias lvalue y `const`, transferencia por referencia vs por dirección, punteros por referencia, `return` por referencia; cierre con `Punto` (devolver un atributo por valor, por referencia y por referencia `const`) y `sumar` (sobrecargas: el resultado por valor, por dirección o por referencia) |
 
 ## Material extra
